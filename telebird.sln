@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.35026.282
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "telebird", "telebird\telebird.vcxproj", "{0F1F0A22-869E-42F9-8086-A70F1E209DDD}"
 EndProject
@@ -12,6 +12,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GID", "GID\GID.vcxproj", "{4B836296-186F-452D-B39B-1E72A467AA8E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QID", "QID\QID.vcxproj", "{A66DE94F-AB13-48B7-B123-791EDC1AFABE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "telebird2", "telebird2\telebird2.csproj", "{FE013ABB-BC2E-471C-8FBF-FA39DC330555}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{BAB40764-1D0F-4A31-8915-E473264099C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +79,30 @@ Global
 		{A66DE94F-AB13-48B7-B123-791EDC1AFABE}.Release|x64.Build.0 = Release|x64
 		{A66DE94F-AB13-48B7-B123-791EDC1AFABE}.Release|x86.ActiveCfg = Release|Win32
 		{A66DE94F-AB13-48B7-B123-791EDC1AFABE}.Release|x86.Build.0 = Release|Win32
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Debug|x64.Build.0 = Debug|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Debug|x86.Build.0 = Debug|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Release|x64.ActiveCfg = Release|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Release|x64.Build.0 = Release|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Release|x86.ActiveCfg = Release|Any CPU
+		{FE013ABB-BC2E-471C-8FBF-FA39DC330555}.Release|x86.Build.0 = Release|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Debug|x64.Build.0 = Debug|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Debug|x86.Build.0 = Debug|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Release|x64.ActiveCfg = Release|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Release|x64.Build.0 = Release|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Release|x86.ActiveCfg = Release|Any CPU
+		{BAB40764-1D0F-4A31-8915-E473264099C1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

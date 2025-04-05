@@ -30,74 +30,130 @@
 * enumerate_all_dialogs
 */
 
+// CHAT_ID, MSG_ID, RAW_MESSAGE_TEXT,HTML_MESSAGE_TEXT,DATETIME,USER_ID,USER_NAME,USER_SMALLPHOTO,TAG
+typedef void(_cdecl* MESSAGE_RECIEVE_CALLBACK)(long long, long long, const wchar_t*, const wchar_t*, long long, long long, const wchar_t*, const wchar_t*, const wchar_t*, void*);
+// USER_ID USER_FIRSTNAME USER_LASTNAME,USER_NICKNAME,USER_DESCRIPTION,USER_HTMLDESCRIPTION,USER_BIGPHOTO,USER_SMALLPHOTO
+typedef void(_cdecl* USER_RECIEVE_CALLBACK)(long long, const wchar_t*, const wchar_t*, const wchar_t*, const wchar_t*, const wchar_t*, const wchar_t*, const wchar_t*, void*);
+// CHAT_ID CHAT_NAME IS_DIALOG SMALLPHOTO BIGPHOTO CHAT_HTMLDESCRIPTION CHAT_LASTMESSAGE_TIME
+typedef void(_cdecl* CHAT_RECIEVE_CALLBACK)(long long, const wchar_t*, long long, const wchar_t*, const wchar_t*, const wchar_t*, long long, void *);
+// NOTIFICATION_HTML
+typedef void(_cdecl* NOTIFICATION_RECIEVE_CALLBACK)(const wchar_t*);
+// FINISH CALLBACK
+typedef void(_cdecl* FINISH_CALLBACK)(void*);
+// LOGIN API
 typedef void (_cdecl *INIT_PROC)(void);
 typedef int (_cdecl* LOGIN_PROC)(char*);
-typedef void(_cdecl* CALLBACK_PROC)(long long, void*);
-typedef void(_cdecl* RELEASE_PROC)(void*);
-typedef void(_cdecl* ENUMERATE_PROC)(CALLBACK_PROC);
-typedef int (_cdecl* GET_PROPERTY_INT)(int,void*);
-typedef void(_cdecl* GET_PROPERTY_STRING)(int, void*, wchar_t*);
-typedef long long(_cdecl* ENUMERATE_MESSAGES_PROC)(CALLBACK_PROC, long long);
+// SETTINGS API
+typedef wchar_t*(_cdecl* READ_SETTING)(const wchar_t* key);
+typedef void(_cdecl* WRITE_SETTING)(const wchar_t* key, const wchar_t* value);
+typedef void(_cdecl* ADD_USER_SETTING)(const wchar_t* key, const wchar_t* value, int tp);
+// LOAD
+typedef void(_cdecl* LOAD_PROC)(READ_SETTING, WRITE_SETTING);
+typedef void(_cdecl* USER_PROC)(ADD_USER_SETTING);
+typedef void(_cdecl* WRITE_USER_PROC)(const wchar_t* key, const wchar_t* value);
+// SIGN FOR UPDATES
+typedef void(*REGISTER_PROC)(NOTIFICATION_RECIEVE_CALLBACK, MESSAGE_RECIEVE_CALLBACK);
+// DOWNLOAD FILE
+typedef void(*DOWNLOAD_ASYNC)(const wchar_t* key, const wchar_t* path, FINISH_CALLBACK, void*);
+typedef void(*LIST_CHATS_ASYNC)(CHAT_RECIEVE_CALLBACK, void*, FINISH_CALLBACK, void*);
+typedef void(*LIST_MESSAGES_ASYNC)(long long chatid, long long offset, MESSAGE_RECIEVE_CALLBACK, void*, FINISH_CALLBACK, void*);
+typedef void(*LIST_MEMBERS_ASYNC)(long long chatid, USER_RECIEVE_CALLBACK, void*, FINISH_CALLBACK, void*);
+typedef void(*SEND_MESSAGE_ASYNC)(long long chatid, FINISH_CALLBACK, void*);
+typedef void(*USER_INFO_ASYNC)(long long chatid, long long msgid, USER_RECIEVE_CALLBACK, void*);
+typedef void(*BEGIN_DIALOG_ASYNC)(long long userid, CHAT_RECIEVE_CALLBACK, void*);
+typedef void(*SEND_FILE_ASYNC)(long long chatid, const wchar_t* filepath, FINISH_CALLBACK, void*);
 
-typedef void(_cdecl* POPUP_PROC)(const wchar_t*);
+INIT_PROC qinit;
+LOGIN_PROC qlogin;
+LOAD_PROC qload;
+REGISTER_PROC qregister;
+DOWNLOAD_ASYNC qdownload;
+LIST_CHATS_ASYNC qlist_chats;
+LIST_MESSAGES_ASYNC qlist_messages;
+LIST_MEMBERS_ASYNC qlist_members;
+SEND_MESSAGE_ASYNC qsend_message;
+USER_INFO_ASYNC quser_info;
+BEGIN_DIALOG_ASYNC qbegin_dialog;
+SEND_FILE_ASYNC qsend_file;
+USER_PROC qget_user_settings;
+WRITE_USER_PROC qset_user_settings;
 
-typedef void(_cdecl* REGISTER_PROC)(CALLBACK_PROC, POPUP_PROC);
-
-typedef int(_cdecl* SYNCHRONIZE_PROC)(const wchar_t*, wchar_t*, bool);
-
-typedef void(_cdecl* BEGIN_DOWNLOAD_PROC)(const wchar_t*, const wchar_t*);
-
-typedef void(_cdecl* ENUMERATE_PARTICIPANTS_PROC)(long long, CALLBACK_PROC);
-
-INIT_PROC qid_init, qid_keep_alive;
-LOGIN_PROC qid_login;
-RELEASE_PROC qid_delete;
-ENUMERATE_PROC qid_get_chats, qid_get_dialogs;
-GET_PROPERTY_INT qid_get_chat_info, qid_get_message_info, qid_get_plugin_info,qid_get_user_info;
-GET_PROPERTY_STRING qid_get_chat_infos, qid_get_message_infos, qid_get_plugin_infos, qid_get_user_infos;
-ENUMERATE_MESSAGES_PROC qid_get_messages;
-REGISTER_PROC qid_register;
-BEGIN_DOWNLOAD_PROC qid_download;
-ENUMERATE_PARTICIPANTS_PROC qid_get_participants;
-
-
-enum ChatInfo_Properties
+void EmptyCallback(void*)
 {
-    CHAT_NAME,
-    CHAT_BIGPHOTO,
-    CHAT_SMALLPHOTO,
-    CHAT_DESCRIPTION1,
-    CHAT_FULL_DESCRIPTION,
-    CHAT_TYPE,
-    CHAT_ID
-};
+    // just do nothing
+    // LOL
+}
 
-enum MessageInfo_Properties
-{
-    MESSAGE_FROM_ID,
-    MESSAGE_FROM_NAME,
-    MESSAGE_FROM_PHOTO,
-    MESSAGE_TEXT_RAW,
-    MESSAGE_TEXT_HTML,
-    MESSAGE_FILE_COUNT,
-    MESSAGE_PHOTO_PREVIEW_COUNT,
-    MESSAGE_VIDEO_PREVIEW_COUNT,
-    MESSAGE_REPLY_ID,
-    MESSAGE_FIRST_FILE = 1000,
-    MESSAGE_FIRST_PHOTO_PREVIEW=2000,
-    MESSAGE_FIRST_VIDEO_PREVIEW=3000
-};
+#define load(A, B) A = (decltype(A))GetProcAddress(hm, B); if (A == NULL) { wxMessageBox("QID SERVER ERROR - " B " not found"); return false; }
 
-enum UserInfo_Properties
-{
-    USER_NAME,
-    USER_DIALOG_ID,
-    USER_ID,
-    USED_DESCRIPTION,
-    USER_SMALLPHOTO,
-    USER_BIGPHOTO,
-    USER_FULL_DESCRIPTION
-};
+//typedef void(_cdecl* CALLBACK_PROC)(long long, void*);
+//typedef void(_cdecl* RELEASE_PROC)(void*);
+//typedef void(_cdecl* ENUMERATE_PROC)(CALLBACK_PROC);
+//typedef int (_cdecl* GET_PROPERTY_INT)(int,void*);
+//typedef void(_cdecl* GET_PROPERTY_STRING)(int, void*, wchar_t*);
+//typedef long long(_cdecl* ENUMERATE_MESSAGES_PROC)(CALLBACK_PROC, long long);
+//
+//typedef void(_cdecl* POPUP_PROC)(const wchar_t*);
+//
+//typedef void(_cdecl* REGISTER_PROC)(CALLBACK_PROC, POPUP_PROC);
+//
+//typedef int(_cdecl* SYNCHRONIZE_PROC)(const wchar_t*, wchar_t*, bool);
+//
+//typedef void(_cdecl* BEGIN_DOWNLOAD_PROC)(const wchar_t*, const wchar_t*);
+//
+//typedef void(_cdecl* ENUMERATE_PARTICIPANTS_PROC)(long long, CALLBACK_PROC);
+//
+//INIT_PROC qid_init = 0, qid_keep_alive;
+//LOGIN_PROC qid_login;
+//RELEASE_PROC qid_delete;
+//ENUMERATE_PROC qid_get_chats, qid_get_dialogs;
+//GET_PROPERTY_INT qid_get_chat_info, qid_get_message_info, qid_get_plugin_info,qid_get_user_info;
+//GET_PROPERTY_STRING qid_get_chat_infos, qid_get_message_infos, qid_get_plugin_infos, qid_get_user_infos;
+//ENUMERATE_MESSAGES_PROC qid_get_messages;
+//REGISTER_PROC qid_register;
+//BEGIN_DOWNLOAD_PROC qid_download;
+//ENUMERATE_PARTICIPANTS_PROC qid_get_participants;
+//
+//
+//enum ChatInfo_Properties
+//{
+//    CHAT_NAME,
+//    CHAT_BIGPHOTO,
+//    CHAT_SMALLPHOTO,
+//    CHAT_DESCRIPTION1,
+//    CHAT_FULL_DESCRIPTION,
+//    CHAT_TYPE,
+//    CHAT_ID
+//};
+//
+//enum MessageInfo_Properties
+//{
+//    MESSAGE_FROM_ID,
+//    MESSAGE_FROM_NAME,
+//    MESSAGE_FROM_PHOTO,
+//    MESSAGE_TEXT_RAW,
+//    MESSAGE_TEXT_HTML,
+//    MESSAGE_FILE_COUNT,
+//    MESSAGE_PHOTO_PREVIEW_COUNT,
+//    MESSAGE_VIDEO_PREVIEW_COUNT,
+//    MESSAGE_REPLY_ID,
+//    MESSAGE_FIRST_FILE = 1000,
+//    MESSAGE_FIRST_PHOTO_PREVIEW=2000,
+//    MESSAGE_FIRST_VIDEO_PREVIEW=3000
+//};
+//
+//enum UserInfo_Properties
+//{
+//    USER_NAME,
+//    USER_DIALOG_ID,
+//    USER_ID,
+//    USED_DESCRIPTION,
+//    USER_SMALLPHOTO,
+//    USER_BIGPHOTO,
+//    USER_FULL_DESCRIPTION
+//};
+
+char buf[1024];
 
 //typedef 
 
@@ -139,6 +195,8 @@ public:
     // initialization (doing it here and not in the ctor allows to have an error
     // return: if OnInit() returns false, the application terminates)
     virtual bool OnInit() override;
+
+    wxFileName rootpath;
 };
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -147,6 +205,25 @@ public:
 // wxGetApp() which will return the reference of the right type (i.e. MyApp and
 // not wxApp)
 wxIMPLEMENT_APP(MyApp);
+
+
+wchar_t buff[1024];
+
+wchar_t* ReadIni(const wchar_t* key)
+{
+    wxFileName fn = wxGetApp().rootpath;
+    fn.SetExt("ini");
+    memset(buf, 0, sizeof(buf));
+    buf[GetPrivateProfileStringW(L"qid", key, L"", buff, 1023, fn.GetFullPath())] = 0;
+    return buff;
+}
+
+void WriteIni(const wchar_t* key, const wchar_t* value)
+{
+    wxFileName fn = wxGetApp().rootpath;
+    fn.SetExt("ini");
+    
+}
 
 // ============================================================================
 // implementation
@@ -175,7 +252,6 @@ bool MyApp::OnInit()
         wxDir::Make(wxStandardPaths::Get().GetUserDataDir());
     }
     wxSleep(2);
-    ss->HideWithEffect(wxShowEffect::wxSHOW_EFFECT_ROLL_TO_RIGHT);
     {
         wxDialog* lib_choose = new wxDialog(NULL, -1, "QID 1.0");
         wxBoxSizer* lib_layout = new wxBoxSizer(wxVERTICAL);
@@ -212,6 +288,7 @@ bool MyApp::OnInit()
         //lib_layout->Add(lib_choose);
         lib_layout->Add(lib_continue, wxSizerFlags().Center().Border());
         lib_choose->SetSizerAndFit(lib_layout);
+        ss->HideWithEffect(wxShowEffect::wxSHOW_EFFECT_ROLL_TO_RIGHT);
         if (lib_choose->ShowModal() != wxID_OK)
             return false;
         dll_name = lib_dll->GetStringSelection() + ".dll";
@@ -226,33 +303,72 @@ bool MyApp::OnInit()
         wxMessageBox("QID SERVER ERROR - LoadLibraryW failed", wxMessageBoxCaptionStr, wxICON_ERROR);
         return false;
     }
-    qid_init = (INIT_PROC)GetProcAddress(hm, "init");
-    if (qid_init==NULL)
-    {
-        wxMessageBox("QID SERVER ERROR - init not found", wxMessageBoxCaptionStr, wxICON_ERROR);
-        return false;
-    }
-    qid_keep_alive = (INIT_PROC)GetProcAddress(hm, "loop");
-    /*if (qid_keep_alive == NULL)
-    {
-        wxMessageBox("QID SERVER ERROR - loop not found", wxMessageBoxCaptionStr, wxICON_ERROR);
-        return false;
-    }*/
     wxMilliSleep(350);
+    load(qlogin, "login");
+    load(qinit, "init");
+    load(qbegin_dialog, "begin_dialog");
+    load(qdownload, "download");
+    load(qlist_chats, "list_chats");
+    load(qlist_members, "list_members");
+    load(qlist_messages, "get_messages");
+    load(qload, "load_settings");
+    load(qregister, "register");
+    load(qsend_file, "send_file");
+    load(qsend_message, "send_message");
+    load(quser_info, "user_info");
+    load(qget_user_settings, "get_user");
+    load(qset_user_settings, "set_user");
     ss->Hide();
     ss = new wxSplashScreen(wxImage(qid_wnd2_xpm), wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
     ss->Show();
-    qid_init();
+    wxFileName fn(wxStandardPaths::Get().GetUserDataDir());
+    fn.AppendDir(username);
+    if (!fn.DirExists())
+        fn.Mkdir();
+    rootpath = fn;
+    fn.SetExt("ini");
+    if (!fn.Exists())
+    {
+        wxFile f(fn.GetFullPath(), wxFile::write);
+        f.Close();
+    }
+    qload(ReadIni, WriteIni);
     wxMilliSleep(150);
     ss->Hide();
     ss = new wxSplashScreen(wxImage(qid_wnd3_xpm), wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
     ss->Show();
-    //qid_keep_alive();
+    qinit();
     wxMilliSleep(150);
     ss->Hide();
     ss = new wxSplashScreen(wxImage(qid_wnd4_xpm), wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
     ss->Show();
     // load settings
+    strcpy_s(buf, username);
+    int t = qlogin(buf);
+    while (t != 0)
+    {
+        ss->Hide();
+        if (t == 1)
+        {
+            wxPasswordEntryDialog dlg(NULL, buf);
+            if (dlg.ShowModal() != wxID_OK)
+            {
+                return false;
+            }
+            strcpy_s(buf, dlg.GetValue());
+        }
+        else
+        {
+            wxTextEntryDialog dlg(NULL, buf);
+            if (dlg.ShowModal() != wxID_OK)
+            {
+                return false;
+            }
+            strcpy_s(buf, dlg.GetValue());
+        }
+        ss->Show();
+        t = qlogin(buf);
+    }
     wxMilliSleep(150);
     ss->Hide();
     ss = new wxSplashScreen(wxImage(qid_wnd5_xpm), wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
