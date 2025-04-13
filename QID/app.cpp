@@ -1,6 +1,7 @@
 // app.cpp : This file contains the application class. Program execution begins and ends there.
 //
 #include "gui.h"
+#include "guiMyFrame1.h"
 #include "wx/wxprec.h"
 #include "wx/fs_inet.h"
 #include "wx/fs_mem.h"
@@ -10,6 +11,7 @@
 #include "wx/msgqueue.h"
 #include "wx/webrequest.h"
 #include "wx/splash.h"
+#include "wx/fileconf.h"
 #include "wx/dir.h"
 #include "QID_MAIN.h"
 #include "QID_WND1.h"
@@ -41,7 +43,7 @@ typedef void(_cdecl* NOTIFICATION_RECIEVE_CALLBACK)(const wchar_t*);
 // FINISH CALLBACK
 typedef void(_cdecl* FINISH_CALLBACK)(void*);
 // LOGIN API
-typedef void (_cdecl *INIT_PROC)(void);
+typedef void (_cdecl *INIT_PROC)(const wchar_t* load_path);
 typedef int (_cdecl* LOGIN_PROC)(char*);
 // SETTINGS API
 typedef wchar_t*(_cdecl* READ_SETTING)(const wchar_t* key);
@@ -84,7 +86,7 @@ void EmptyCallback(void*)
     // LOL
 }
 
-#define load(A, B) A = (decltype(A))GetProcAddress(hm, B); if (A == NULL) { wxMessageBox("QID SERVER ERROR - " B " not found"); return false; }
+#define load(A, B) A = (decltype(A))GetProcAddress(hm, B); if (A == NULL) { wxMessageBox("QID SERVER ERROR - " B " not found", wxMessageBoxCaptionStr, wxICON_ERROR); return false; }
 
 //typedef void(_cdecl* CALLBACK_PROC)(long long, void*);
 //typedef void(_cdecl* RELEASE_PROC)(void*);
@@ -197,6 +199,7 @@ public:
     virtual bool OnInit() override;
 
     wxFileName rootpath;
+    //wxBaseConfig* globconf;
 };
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -211,18 +214,28 @@ wchar_t buff[1024];
 
 wchar_t* ReadIni(const wchar_t* key)
 {
-    wxFileName fn = wxGetApp().rootpath;
+    /*wxFileName fn = wxGetApp().rootpath;
+    wxString username = fn.GetDirs().back();
+    fn.RemoveLastDir();
+    fn.SetName(username);
     fn.SetExt("ini");
     memset(buf, 0, sizeof(buf));
     buf[GetPrivateProfileStringW(L"qid", key, L"", buff, 1023, fn.GetFullPath())] = 0;
+    return buff;*/
+    wxStrcpy(buff, wxConfigBase::Get()->Read(key));
     return buff;
 }
 
 void WriteIni(const wchar_t* key, const wchar_t* value)
 {
-    wxFileName fn = wxGetApp().rootpath;
+    /*wxFileName fn = wxGetApp().rootpath;
+    wxString username = fn.GetDirs().back();
+    fn.RemoveLastDir();
+    fn.SetName(username);
     fn.SetExt("ini");
-    
+    WritePrivateProfileStringW(L"qid", key, value, fn.GetFullPath());*/
+    wxConfigBase::Get()->Write(key, value);
+    wxConfigBase::Get()->Flush();
 }
 
 // ============================================================================
@@ -278,8 +291,7 @@ bool MyApp::OnInit()
         while (s != "")
         {
             s = fs.URLToFileName(s).GetName();
-            s.RemoveLast(4);
-            lib_dll->Append(s);
+            lib_phone->Append(s);
             s = fs.FindNext();
         }
         lib_layout->Add(lib_phone, wxSizerFlags().Center().Border());
@@ -321,23 +333,26 @@ bool MyApp::OnInit()
     ss->Hide();
     ss = new wxSplashScreen(wxImage(qid_wnd2_xpm), wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
     ss->Show();
-    wxFileName fn(wxStandardPaths::Get().GetUserDataDir());
+    wxFileName fn(wxStandardPaths::Get().GetUserDataDir(), "");
     fn.AppendDir(username);
     if (!fn.DirExists())
         fn.Mkdir();
     rootpath = fn;
+    fn.RemoveLastDir();
+    fn.SetName(username);
     fn.SetExt("ini");
     if (!fn.Exists())
     {
         wxFile f(fn.GetFullPath(), wxFile::write);
         f.Close();
     }
+    wxConfigBase::Set(new wxFileConfig("QID", "FANTOM", fn.GetFullPath()));
     qload(ReadIni, WriteIni);
     wxMilliSleep(150);
     ss->Hide();
     ss = new wxSplashScreen(wxImage(qid_wnd3_xpm), wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
     ss->Show();
-    qinit();
+    qinit(rootpath.GetFullPath());
     wxMilliSleep(150);
     ss->Hide();
     ss = new wxSplashScreen(wxImage(qid_wnd4_xpm), wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
@@ -375,11 +390,13 @@ bool MyApp::OnInit()
     ss->Show();
     wxMilliSleep(150);
     // create frame
+    guiMyFrame1* frame = new guiMyFrame1(NULL);
+    frame->Show();
     ss->Hide();
-    ss = new wxSplashScreen(wxImage(qid_wnd6_xpm), wxSPLASH_CENTRE_ON_PARENT, 0, NULL, -1);
+    ss = new wxSplashScreen(wxImage(qid_wnd6_xpm), wxSPLASH_CENTRE_ON_PARENT, 5000, frame, -1);
     ss->Show();
-    wxMessageBox(dll_name);
-    wxMessageBox(username);
+    //wxMessageBox(dll_name);
+    //wxMessageBox(username);
     // create the main application window
     //MyFrame1* frame = new MyFrame1(NULL, wxID_ANY, "Your application");
 
@@ -391,4 +408,62 @@ bool MyApp::OnInit()
     // loop and the application will run. If we returned false here, the
     // application would exit immediately.
     return true;
+}
+
+guiMyFrame1::guiMyFrame1(wxWindow* parent)
+    :
+    MyFrame1(parent)
+{
+    //winUsers->SetFont(wxFont())
+    //winChat->SetBackgroundImage(wxImage("as.jpg"));
+    //winChat->SetPage("<html><body background=\"as.jpg\">Mike: This is my text<blockquote>11:20</blockquote><br></body></html>");
+}
+
+void guiMyFrame1::OnSearch(wxCommandEvent& event)
+{
+    // TODO: Implement OnSearch
+}
+
+void guiMyFrame1::GoBack(wxCommandEvent& event)
+{
+    // TODO: Implement GoBack
+}
+
+void guiMyFrame1::OpenSettings(wxCommandEvent& event)
+{
+    // TODO: Implement OpenSettings
+
+}
+
+void guiMyFrame1::OnCellClicked(wxHtmlCellEvent& event)
+{
+    // TODO: Implement OnCellClicked
+}
+
+void guiMyFrame1::OnLinkClicked(wxHtmlLinkEvent& event)
+{
+    // TODO: Implement OnLinkClicked
+    
+}
+
+void guiMyFrame1::OnFileSend(wxCommandEvent& event)
+{
+    // TODO: Implement OnFileSend
+}
+
+void guiMyFrame1::OnEmojiSelect(wxCommandEvent& event)
+{
+    // TODO: Implement OnEmojiSelect
+}
+
+void guiMyFrame1::OnPasteImageAndFile(wxKeyEvent& event)
+{
+    // TODO: Implement OnPasteImageAndFile
+    event.Skip();
+}
+
+void guiMyFrame1::OnSendMessage(wxCommandEvent& event)
+{
+    // TODO: Implement OnSendMessage
+    //event.Skip();
 }
