@@ -25,21 +25,6 @@ IMPLEMENT_DYNCREATE(CMessengerDoc, CDocument)
 BEGIN_MESSAGE_MAP(CMessengerDoc, CDocument)
 END_MESSAGE_MAP()
 
-BEGIN_DISPATCH_MAP(CMessengerDoc, CDocument)
-END_DISPATCH_MAP()
-
-// Note: we add support for IID_IMessenger to support typesafe binding
-//  from VBA.  This IID must match the GUID that is attached to the
-//  dispinterface in the .IDL file.
-
-// {7c5f2e3c-7bd0-4641-acaf-c816f4b66973}
-static const IID IID_IMessenger =
-{0x7c5f2e3c,0x7bd0,0x4641,{0xac,0xaf,0xc8,0x16,0xf4,0xb6,0x69,0x73}};
-
-BEGIN_INTERFACE_MAP(CMessengerDoc, CDocument)
-	INTERFACE_PART(CMessengerDoc, IID_IMessenger, Dispatch)
-END_INTERFACE_MAP()
-
 
 // CMessengerDoc construction/destruction
 
@@ -47,15 +32,19 @@ CMessengerDoc::CMessengerDoc() noexcept
 {
 	// TODO: add one-time construction code here
 
-	EnableAutomation();
-
-	AfxOleLockApp();
 }
 
 CMessengerDoc::~CMessengerDoc()
 {
-	AfxOleUnlockApp();
 }
+
+typedef HRESULT (*DllGetClass)(
+	REFCLSID rclsid,
+	REFIID   riid,
+	LPVOID* ppv
+);
+
+typedef test2::IPlugin* (*CreatePlugin)();
 
 BOOL CMessengerDoc::OnNewDocument()
 {
@@ -64,7 +53,21 @@ BOOL CMessengerDoc::OnNewDocument()
 
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
-
+	CFileDialog libsel(TRUE, _T("dll"));
+	libsel.AddEditBox(17, _T("Username"));
+	if (libsel.DoModal() != IDOK)
+		return FALSE;
+	libsel.GetEditBoxText(17, username);
+	libname = libsel.GetFolderPath() + _T("\\") + libsel.GetFileName();;
+	hlib = LoadLibraryW(libname);
+	if (hlib == NULL)
+		return FALSE;
+	CreatePlugin gc = (CreatePlugin)GetProcAddress(hlib, "CreateClassObject");
+	if (gc == NULL)
+		return FALSE;
+	test2::IPlugin* ptr = gc();
+	plugin = ptr;
+	ptr->Release();
 	return TRUE;
 }
 
@@ -155,3 +158,15 @@ void CMessengerDoc::Dump(CDumpContext& dc) const
 
 
 // CMessengerDoc commands
+
+
+void CMessengerDoc::OnCloseDocument()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (hlib)
+	{
+		FreeLibrary(hlib);
+	}
+
+	CDocument::OnCloseDocument();
+}

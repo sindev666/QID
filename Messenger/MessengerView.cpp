@@ -61,6 +61,8 @@ void CMessengerView::OnDraw(CDC* /*pDC*/)
 		return;
 
 	// TODO: add draw code for native data here
+	//test2::IWatchPtr watch;
+	//_com_ptr_t c;
 }
 
 

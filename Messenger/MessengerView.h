@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 class CMessengerView : public CView
 {
 protected: // create from serialization only

@@ -36,18 +36,18 @@ public:
 #endif
 
 protected:
+	HMODULE hlib = NULL;
+	CString libname, username;
+	CComPtr<test2::IPlugin> plugin;
 
 // Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
 
-	// Generated OLE dispatch map functions
-
-	DECLARE_DISPATCH_MAP()
-	DECLARE_INTERFACE_MAP()
-
 #ifdef SHARED_HANDLERS
 	// Helper function that sets search content for a Search Handler
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
+public:
+	virtual void OnCloseDocument();
 };

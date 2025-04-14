@@ -70,17 +70,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="Messenger.idl">
-      <Filter>Source Files</Filter>
-    </Midl>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Messenger.reg" />
-    <None Include="res\Messenger.rc2">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Messenger.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
@@ -122,5 +111,10 @@
     <Image Include="res\Toolbar256.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Messenger.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

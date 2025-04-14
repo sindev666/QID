@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,6 +56,12 @@ namespace test2
         void RemoveUserFromChat(IUser user);
 
         string Description { get; set; }
+
+        bool IsPinned { get; set; }
+
+        bool SupportTags { get; }
+
+        bool MessagesAllowed { get; }
     }
 
     [ComVisible(true)]
@@ -174,6 +182,36 @@ namespace test2
         long Id { get; }
 
         long ReplyId { get; }
+
+        string Tag { get; }
+    }
+
+    [ComVisible(true)]
+    [Guid("7FB77966-0256-4E79-9EF0-D2C6F1BC2AD1")]
+    public interface IPollAnswer
+    {
+        string Value { get; }
+
+        int VotesCount { get; }
+
+        void Vote();
+
+        bool HaveVoted { get; }
+
+        void Revote();
+    }
+
+    [ComVisible(true)]
+    [Guid("BC376410-1255-47E7-A880-68A5FC89D664")]
+    public interface IPoll : IMessage
+    {
+        ICollection Answers { get; }
+
+        bool CanMultipleVote { get; }
+
+        bool CanRevote { get; }
+
+
     }
 
     [ComVisible(true)]
@@ -238,28 +276,139 @@ namespace test2
 
         void SearchWeb(string text);
 
-        void SendSimpleMessage(IChat chat, string text, long reply_id);
+        void SendSimpleMessage(IChat chat, string text, long reply_id, string tag_name);
 
-        void SendFileMessage(IChat chat, string filename, long reply_id);
+        void SendFileMessage(IChat chat, string filename, long reply_id, string tag_name);
 
-        void SendAlbumMessage(IChat chat, ICollection photos_filenames, long reply_id);
+        void SendAlbumMessage(IChat chat, ICollection photos_filenames, long reply_id, string tag_name);
 
         void ForwardMessage(IMessage message, IChat target);
 
         void ConsoleMessage(string command);
-    }
-    //[ComVisible(true)]
-    //[Guid("01EC9A28-AEB8-49AA-9246-CB96B220C886")]
-    //[ProgId("test2.Main")]
-    //public class A : IPlugin
-    //{
-    //    WTelegram.Client client;
 
-    //    public A()
-    //    {
-    //        //client = new WTelegram.Client();
+        void OnAction(long chat_id, long msg_id, string action);
+
+        void CreatePoll(IChat chat, string question, string type, ICollection answers);
+    }
+
+    [ComVisible(true)]
+    [Guid("01EC9A28-AEB8-49AA-9246-CB96B220C886")]
+    [ProgId("test2.Main")]
+    public class A : IPlugin
+    {
+        WTelegram.Client client;
+
+        static Assembly _Load(string path)
+        {
+            if (!File.Exists(path)) return null;
+
+            Console.WriteLine("Load: " + path);
+            return Assembly.LoadFrom(path);
+        }
+
+        public A()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+        _Load(Path.Combine
+        (
+            Path.GetDirectoryName(typeof(A).Assembly.Location),
+            args.Name?.Remove(args.Name.IndexOf(',')) + ".dll"
+        ));
+            client = new WTelegram.Client(17349, "344583e45741c457fe1862106095a5eb");
+
+
+        }
+
+        public IClient Client { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public void ConsoleMessage(string command)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreatePoll(IChat chat, string question, string type, ICollection answers)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ForwardMessage(IMessage message, IChat target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void GetAllChats()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IChat GetChatByUsername(string username)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICollection GetContacts()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IUser GetUserByUsername(string username)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Init(string settings_path)
+        {
+            client = new WTelegram.Client(17349, "344583e45741c457fe1862106095a5eb", settings_path);
+        }
+
+        public int Login(ref string user_data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnAction(long chat_id, long msg_id, string action)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ParseLink(string link)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SearchMessages(string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SearchWeb(string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendAlbumMessage(IChat chat, ICollection photos_filenames, long reply_id, string tag_name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendFileMessage(IChat chat, string filename, long reply_id, string tag_name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendSimpleMessage(IChat chat, string text, long reply_id, string tag_name)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    static class B
+    {
+        [DllExport]
+        static public IntPtr CreateClassObject()
+        {
             
-            
-    //    }
-    //}
+            return Marshal.GetComInterfaceForObject(new A(), typeof(IPlugin));
+        }
+    }
+
 }
