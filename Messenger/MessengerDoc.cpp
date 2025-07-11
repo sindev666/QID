@@ -1,6 +1,20 @@
 ﻿
 // MessengerDoc.cpp : implementation of the CMessengerDoc class
 //
+// Copyright(C) 2025 sindev666
+//
+// This program is free software : you can redistribute it and /or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see < https://www.gnu.org/licenses/ >.
 
 #include "pch.h"
 #include "framework.h"
@@ -44,7 +58,7 @@ typedef HRESULT (*DllGetClass)(
 	LPVOID* ppv
 );
 
-typedef test2::IPlugin* (*CreatePlugin)();
+typedef test4::IPlugin* (*CreatePlugin)();
 
 BOOL CMessengerDoc::OnNewDocument()
 {
@@ -54,7 +68,8 @@ BOOL CMessengerDoc::OnNewDocument()
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
 	CFileDialog libsel(TRUE, _T("dll"));
-	libsel.AddEditBox(17, _T("Username"));
+	libsel.AddText(16, _T("Username"));
+	libsel.AddEditBox(17, _T(""));
 	if (libsel.DoModal() != IDOK)
 		return FALSE;
 	libsel.GetEditBoxText(17, username);
@@ -65,9 +80,13 @@ BOOL CMessengerDoc::OnNewDocument()
 	CreatePlugin gc = (CreatePlugin)GetProcAddress(hlib, "CreateClassObject");
 	if (gc == NULL)
 		return FALSE;
-	test2::IPlugin* ptr = gc();
+	test4::IPlugin* ptr = gc();
 	plugin = ptr;
 	ptr->Release();
+	VARIANT x;
+	
+	CComBSTR settings = "55";
+	CString str;
 	return TRUE;
 }
 

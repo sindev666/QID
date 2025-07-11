@@ -316,6 +316,7 @@ namespace test2
         ));
             client = new WTelegram.Client(17349, "344583e45741c457fe1862106095a5eb");
 
+            AXVLC.VLCPlugin2 lol = new AXVLC.VLCPlugin2();
 
         }
 

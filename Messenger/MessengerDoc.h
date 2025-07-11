@@ -38,7 +38,7 @@ public:
 protected:
 	HMODULE hlib = NULL;
 	CString libname, username;
-	CComPtr<test2::IPlugin> plugin;
+	CComPtr<test4::IPlugin> plugin;
 
 // Generated message map functions
 protected:

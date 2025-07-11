@@ -1,4 +1,4 @@
-// pch.h: This is a precompiled header file.
+ï»¿// pch.h: This is a precompiled header file.
 // Files listed below are compiled only once, improving build performance for future builds.
 // This also affects IntelliSense performance, including code completion and many code browsing features.
 // However, files listed here are ALL re-compiled if any one of them is updated between builds.
@@ -10,6 +10,7 @@
 
 // add headers that you want to pre-compile here
 #include "framework.h"
-#import "C:\Users\Ìàðê\source\repos\telebird\test2\bin\Debug\test2.tlb" raw_interfaces_only
+// UPD: IUnknown
+#import "C:\Users\ÐœÐ°Ñ€Ðº\source\repos\telebird\test4\bin\Debug\test4.tlb" raw_interfaces_only
 
 #endif //PCH_H

@@ -1,6 +1,20 @@
 ﻿
 // Messenger.cpp : Defines the class behaviors for the application.
 //
+// Copyright(C) 2025 sindev666
+//
+// This program is free software : you can redistribute it and /or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see < https://www.gnu.org/licenses/ >.
 
 #include "pch.h"
 #include "framework.h"
@@ -11,6 +25,8 @@
 
 #include "MessengerDoc.h"
 #include "MessengerView.h"
+#include "SharedDoc.h"
+#include "WelcomeView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -77,6 +93,7 @@ BOOL CMessengerApp::InitInstance()
 	CWinAppEx::InitInstance();
 
 	AllocConsole();
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
 
 	// Initialize OLE libraries
 	if (!AfxOleInit())
@@ -116,6 +133,15 @@ BOOL CMessengerApp::InitInstance()
 	// Register the application's document templates.  Document templates
 	//  serve as the connection between documents, frame windows and views
 	CMultiDocTemplate* pDocTemplate;
+	//pDocTemplate = new CMultiDocTemplate(
+	//	IDR_MAINFRAME,
+	//	RUNTIME_CLASS(CSharedDoc),
+	//	RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+	//	RUNTIME_CLASS(CWelcomeView));
+	//if (!pDocTemplate)
+	//	return FALSE;
+	//AddDocTemplate(pDocTemplate);
+
 	pDocTemplate = new CMultiDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CMessengerDoc),
@@ -173,6 +199,9 @@ protected:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	virtual BOOL OnInitDialog();
+	CRichEditCtrl m_licence;
 };
 
 CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
@@ -182,6 +211,7 @@ CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_RICHEDIT21, m_licence);
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
@@ -218,6 +248,7 @@ void CMessengerApp::SaveCustomState()
 void CMessengerApp::OnFileNewFrame()
 {
 	ASSERT(m_pDocTemplate != nullptr);
+
 
 	CDocument* pDoc = nullptr;
 	CFrameWnd* pFrame = nullptr;
@@ -271,6 +302,7 @@ void CMessengerApp::OnFileNew()
 	if (pFrame != nullptr)
 		pDoc = pFrame->GetActiveDocument();
 
+
 	if (pFrame == nullptr || pDoc == nullptr)
 	{
 		// if it's the first document, create as normal
@@ -293,3 +325,41 @@ void CMessengerApp::OnFileNew()
 }
 
 
+
+
+BOOL CAboutDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  Add extra initialization here
+
+	UpdateData();
+	m_licence.SetAutoURLDetect();
+	m_licence.SetReadOnly();
+	m_licence.SetWindowTextW(_T(
+		"Copyright (C) 2025 sindev666\n"
+		"\n"
+		"This program is free software : you can redistribute itand /or modify\n"
+		"it under the terms of the GNU General Public License as published by\n"
+		"the Free Software Foundation, either version 3 of the License, or \n"
+		"(at your option) any later version.\n"
+		"\n"
+		"This program is distributed in the hope that it will be useful, \n"
+		"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+		"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the\n"
+		"GNU General Public License for more details.\n"
+		"\n"
+		"You should have received a copy of the GNU General Public License\n"
+		"along with this program.If not, see < https://www.gnu.org/licenses/ >."
+		"\n"
+		"Used libraries:\n"
+		"MFC - Microsoft Foundation Classes (c) Microsoft Corporation\n"
+		"EFS (c) sindev666 (GNU GPL 3 licence)\n"
+		"wxWidgets (c) wxWidgets Developers https://wxwidgets.org/ (wxWindows Library Licence)\n"
+		"\n"
+		"To see current IM plugin's licence, type /copyright command in console\n"
+	));
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+				  // EXCEPTION: OCX Property Pages should return FALSE
+}
